@@ -14,6 +14,7 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import { ContactSupportOutlined } from "@material-ui/icons";
+import SelectP from 'react-select';
 let primaryKey = 1;
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -96,7 +97,19 @@ export default function SimpleTabs() {
   const [isField,setIsField] = useState(getFieldObj);
 //   show err
   const [err,setErr] = useState("");
+  const [dis,setDis] = useState(true);
 
+  const options = [
+    { value: 'Point_Guard_(PG)', label: 'Point_Guard_(PG)' },
+    { value: 'Shooting_Guard_(SG)', label: 'Shooting_Guard_(SG)' },
+    { value: 'Small_Forward_(SF)', label: 'Small_Forward_(SF)' },
+    { value: 'Power_Forward_(PF)', label: 'Power_Forward_(PF)' },
+    { value: 'Center_(C)', label: 'Center_(C)' },
+  ];
+
+  let getPlayerField = (e) => {
+    player.position = e;
+  }
 
   // the first function to get value in object
   // onchange fun of all fields  
@@ -125,13 +138,6 @@ export default function SimpleTabs() {
             [name]: value,
           }));
         }
-      }
-    }else if(name == "position"){
-      if(value != null){
-        setPlayer((prevState) => ({
-          ...prevState,
-          [name]: value,
-        }));
       }
     }
   };
@@ -166,7 +172,7 @@ export default function SimpleTabs() {
 
   // showing data into document
   const getEntry = () => {
-    if(playerArr.length <= 11){
+    if(playerArr.length <= 5){
       if(player.fname == "" || player.lname == "" || player.height == "" || player.position == "" || player.height > 300 || player.height < 150){
         showErr();
       }else{
@@ -177,6 +183,7 @@ export default function SimpleTabs() {
         setStatus(playerLength);
         showErr();
         primaryKey++;
+        // playerArr.length >= 4 ? setDis(false) : setDis(true);
       }
     }else{
       setStatus("You can add only 11 players");
@@ -193,6 +200,14 @@ export default function SimpleTabs() {
     // changed 
     setIsSame({...isSame, [name]:value});
   }
+
+
+  //   get input field data that i want ***********************************
+  let getPositionField = (event) => {
+    const {value,name} = event.target;
+    setIsField({...isField, [name]:value});
+  }
+
 
 
   // final save button
@@ -240,10 +255,10 @@ export default function SimpleTabs() {
       }
     }
     let uniqueField = [...new Set(mainFiledArr)];
-    // conditions
+    // conditions;
 
     if(unique.length != 0 || err != "" || uniqueField.length != 0){
-      console.log("hello",unique.length,uniqueField.length);
+
       let sBox = document.getElementsByClassName("selectPlay");
       for(let i=0;i<sBox.length;i++){
         sBox[i].style.borderBottom = "none";
@@ -260,9 +275,9 @@ export default function SimpleTabs() {
         setErr("");
       }
       for(let i=0;i<uniqueField.length;i++){
-        let num = uniqueField[i];
-        sBoxField[num].style.borderBottom = "1px solid red";
-        setErr("**Player can be selected only once");
+        let num1 = uniqueField[i];
+        sBoxField[num1].style.borderBottom = "1px solid red";
+        setErr("**Player can be selected only once & Filed Should be unique");
       }
     }else if(err == "" && unique.length == 0 && uniqueField.length == 0 && filtered.length == 5){
       alert("Enjoy Your Game");
@@ -270,14 +285,6 @@ export default function SimpleTabs() {
       setErr("Please Select all the field");
     }
   }
-
-
-//   get input field data that i want ***********************************
-    let getPositionField = (event) => {
-        const {value,name} = event.target;
-        setIsField({...isField, [name]:value});
-    }
-
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -291,11 +298,14 @@ export default function SimpleTabs() {
           aria-label="simple tabs example"
         >
           <Tab label="Compose Team" {...a11yProps(0)} />
-          <Tab label="First Quarter" {...a11yProps(1)} />
+          <Tab 
+            label="First Quarter" 
+            {...a11yProps(1)} 
+            // disabled={dis}
+          />
         </Tabs>
       </AppBar>
       <TabPanel value={value} index={0}>
-        {" "}
         {/* first tab */}
         <form className={classes.root} noValidate autoComplete="off">
           <div className="row">
@@ -340,13 +350,12 @@ export default function SimpleTabs() {
           <div className="row">
             <div className="col-md-6">
             {/* first page select position */}
-              <FormControl className="w-100">
+              {/* <FormControl className="w-100">
                 <InputLabel id="demo-simple-select-label">Select Position</InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   name="position"
-                  onChange={getPositionField}
                   onChange={getData}
                   value={player.position}
                 >
@@ -359,7 +368,13 @@ export default function SimpleTabs() {
                   <MenuItem value="Power_Forward_(PF)">Power Forward (PF)</MenuItem>
                   <MenuItem value="Center_(C)">Center (C)</MenuItem>
                 </Select>
-              </FormControl>
+              </FormControl> */}
+              <SelectP className="w-100 mt-3"
+                isMulti
+                options={options}
+                name="position"
+                onChange={getPlayerField}
+              />
               <small className="pb-2 text-danger">{error.positionErr}</small>
             </div>
           </div>
@@ -407,7 +422,10 @@ export default function SimpleTabs() {
                   </MenuItem>
                   {playerArr.map(val => {
                     if(checkPlayer.player1 == val.id){
-                      return <MenuItem value={val.id}>{val.position}</MenuItem>
+                      let tem = val.position;
+                      return tem.map((i)=>{
+                        return <MenuItem value={i.value}>{i.value}</MenuItem>
+                      })
                     }
                   })}
                 </Select>
@@ -438,7 +456,10 @@ export default function SimpleTabs() {
                   </MenuItem>
                   {playerArr.map(val => {
                     if(checkPlayer.player2 == val.id){
-                      return <MenuItem value={val.id}>{val.position}</MenuItem>
+                      let tem = val.position;
+                      return tem.map((i)=>{
+                        return <MenuItem value={i.value}>{i.value}</MenuItem>
+                      })
                     }
                   })}
                 </Select>
@@ -469,7 +490,10 @@ export default function SimpleTabs() {
                   </MenuItem>
                   {playerArr.map(val => {
                     if(checkPlayer.player3 == val.id){
-                      return <MenuItem value={val.id}>{val.position}</MenuItem>
+                      let tem = val.position;
+                      return tem.map((i)=>{
+                        return <MenuItem value={i.value}>{i.value}</MenuItem>
+                      })
                     }
                   })}
                 </Select>
@@ -500,7 +524,10 @@ export default function SimpleTabs() {
                   </MenuItem>
                   {playerArr.map(val => {
                     if(checkPlayer.player4 == val.id){
-                      return <MenuItem value={val.id}>{val.position}</MenuItem>
+                      let tem = val.position;
+                      return tem.map((i)=>{
+                        return <MenuItem value={i.value}>{i.value}</MenuItem>
+                      })
                     }
                   })}
                 </Select>
@@ -531,7 +558,10 @@ export default function SimpleTabs() {
                   </MenuItem>
                   {playerArr.map(val => {
                     if(checkPlayer.player5 == val.id){
-                      return <MenuItem value={val.id}>{val.position}</MenuItem>
+                      let tem = val.position;
+                      return tem.map((i)=>{
+                        return <MenuItem value={i.value}>{i.value}</MenuItem>
+                      })
                     }
                   })}
                 </Select>

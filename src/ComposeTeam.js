@@ -183,7 +183,7 @@ export default function SimpleTabs() {
         setStatus(playerLength);
         showErr();
         primaryKey++;
-        // playerArr.length >= 4 ? setDis(false) : setDis(true);
+        playerArr.length >= 4 ? setDis(false) : setDis(true);
       }
     }else{
       setStatus("You can add only 11 players");
@@ -301,7 +301,7 @@ export default function SimpleTabs() {
           <Tab 
             label="First Quarter" 
             {...a11yProps(1)} 
-            // disabled={dis}
+            disabled={dis}
           />
         </Tabs>
       </AppBar>
